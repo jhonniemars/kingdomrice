@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Bigas Ledger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Bigas Ledger — Rice Trading Tracker</title>
+<meta name="description" content="A simple, private ledger for Filipino rice traders. Track purchases, sales, stock on hand, and net profit — all on your device.">
+<meta name="theme-color" content="#1B2921">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bigas Ledger">
+<meta property="og:title" content="Bigas Ledger">
+<meta property="og:description" content="Track your rice trading: purchases, sales, stock, and net profit.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🌾</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231B2921'/><text x='50' y='75' font-size='70' text-anchor='middle'>🌾</text></svg>">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Bigas Ledger","short_name":"Bigas","start_url":".","display":"standalone","background_color":"%23EEE8D6","theme_color":"%231B2921","icons":[{"src":"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%231B2921%22/><text x=%2250%22 y=%2275%22 font-size=%2270%22 text-anchor=%22middle%22>🌾</text></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -41,8 +53,6 @@
     position:relative;
     padding-bottom:96px;
   }
-
-  /* ---------- Header ---------- */
   header{
     background:linear-gradient(160deg,var(--green-deep),var(--green-deep-2));
     padding:22px 20px 28px;
@@ -77,12 +87,12 @@
   }
   .net-amount span.cur{font-size:20px; color:var(--gold);}
   .net-caption{font-size:12px; color:#A9B3A6; margin-top:6px;}
-
-  /* ---------- Summary cards ---------- */
   .cards-row{
     display:flex; gap:10px; padding:16px 16px 4px;
     overflow-x:auto; margin-top:-18px; position:relative;
+    scrollbar-width:none;
   }
+  .cards-row::-webkit-scrollbar{display:none;}
   .stat-card{
     flex:1 0 auto; min-width:118px;
     background:var(--card);
@@ -96,8 +106,6 @@
   .stat-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; margin-top:3px;}
   .stat-value.rust{color:var(--rust);}
   .stat-value.profit{color:var(--profit);}
-
-  /* ---------- Tabs ---------- */
   .tabs{
     display:flex; margin:20px 16px 10px;
     background:var(--card);
@@ -112,8 +120,6 @@
     transition:background .15s, color .15s;
   }
   .tab-btn.active{ background:var(--green-deep); color:#F4EFE0; }
-
-  /* ---------- Section title ---------- */
   .section-title{
     display:flex; justify-content:space-between; align-items:center;
     margin:18px 16px 8px;
@@ -128,8 +134,6 @@
     background:var(--card);
   }
   .pill.active{ background:var(--gold); color:var(--green-deep-2); border-color:var(--gold); font-weight:600; }
-
-  /* ---------- Ledger list ---------- */
   #list{padding:0 16px; display:flex; flex-direction:column; gap:10px;}
   .stub{
     background:var(--card);
@@ -140,20 +144,11 @@
     border:1px solid rgba(216,205,176,0.6);
     position:relative;
   }
-  .stub-tab{
-    width:6px; flex-shrink:0;
-  }
+  .stub-tab{ width:6px; flex-shrink:0; }
   .stub-tab.sale{background:var(--profit);}
   .stub-tab.purchase{background:var(--rust);}
-  .stub-body{
-    flex:1; padding:12px 14px;
-    position:relative;
-  }
-  .stub-perf{
-    position:absolute; right:0; top:0; bottom:0; width:0;
-    border-left:2px dashed var(--line);
-  }
-  .stub-top{display:flex; justify-content:space-between; align-items:flex-start;}
+  .stub-body{ flex:1; padding:12px 14px; position:relative; }
+  .stub-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
   .stub-type{
     font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
   }
@@ -161,24 +156,23 @@
   .stub-type.purchase{color:var(--rust);}
   .stub-party{font-size:14px; font-weight:600; margin-top:2px;}
   .stub-date{font-size:11px; color:var(--ink-soft); margin-top:2px;}
-  .stub-amt{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; text-align:right;}
+  .stub-amt{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; text-align:right; white-space:nowrap;}
   .stub-qty{font-size:11px; color:var(--ink-soft); text-align:right; margin-top:2px;}
   .stub-note{font-size:11.5px; color:var(--ink-soft); margin-top:8px; border-top:1px dashed var(--line); padding-top:7px;}
   .stub-del{
     position:absolute; bottom:8px; right:12px;
     font-size:11px; color:var(--rust); cursor:pointer; opacity:0.75;
   }
+  .stub-del:hover{opacity:1; text-decoration:underline;}
   .empty-state{
     text-align:center; padding:40px 20px; color:var(--ink-soft);
   }
   .empty-state .em-icon{font-size:30px;}
   .empty-state p{font-size:13px; margin-top:8px; line-height:1.5;}
-
-  /* ---------- FAB ---------- */
   .fab{
-    position:fixed; bottom:24px; left:50%; transform:translateX(calc(-50% + 0px));
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
     max-width:440px; width:calc(100% - 32px);
-    margin:0 16px;
+    z-index:10;
   }
   .fab-inner{
     background:var(--green-deep);
@@ -191,8 +185,6 @@
     cursor:pointer;
   }
   .fab-inner:active{ transform:scale(0.98); }
-
-  /* ---------- Sheet ---------- */
   .sheet-overlay{
     position:fixed; inset:0; background:rgba(27,41,33,0.45);
     display:none; align-items:flex-end; justify-content:center; z-index:50;
@@ -226,11 +218,12 @@
   input:focus, textarea:focus{ outline:none; border-color:var(--gold); }
   .row2{display:flex; gap:10px;}
   .row2 > div{flex:1;}
-  .quick-qty{display:flex; gap:6px; margin-top:8px;}
+  .quick-qty{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;}
   .qchip{
     font-size:11.5px; padding:6px 10px; border-radius:100px;
     background:var(--gold-soft); color:#6B4E14; cursor:pointer; font-weight:600;
   }
+  .qchip:active{ transform:scale(0.97); }
   .total-preview{
     margin-top:16px; background:var(--card); border-radius:12px; padding:12px 14px;
     display:flex; justify-content:space-between; align-items:center;
@@ -243,7 +236,7 @@
     background:var(--green-deep); color:#F4EFE0; font-weight:700; font-size:14.5px;
     border-radius:13px; cursor:pointer;
   }
-  .save-btn:disabled{ opacity:0.5; }
+  .save-btn:disabled{ opacity:0.5; cursor:not-allowed; }
   .cancel-link{
     text-align:center; margin-top:12px; font-size:12.5px; color:var(--ink-soft); cursor:pointer;
   }
@@ -256,6 +249,27 @@
   }
   .toast.show{opacity:1;}
   .loading-note{ text-align:center; color:var(--ink-soft); font-size:12.5px; padding:30px 0;}
+  .install-banner{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    max-width:440px; width:calc(100% - 32px);
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:12px 14px;
+    display:none; align-items:center; gap:10px;
+    box-shadow:var(--shadow); z-index:20;
+    font-size:13px;
+  }
+  .install-banner.show{display:flex;}
+  .install-banner button{
+    margin-left:auto; background:var(--green-deep); color:#F4EFE0;
+    border:none; border-radius:8px; padding:7px 12px; font-weight:600; cursor:pointer;
+  }
+  .install-banner .close{
+    background:transparent; color:var(--ink-soft); margin-left:0; margin-right:4px;
+  }
+  footer{
+    text-align:center; padding:20px 16px 8px; font-size:11px; color:var(--ink-soft);
+  }
+  footer a{color:var(--green-deep); text-decoration:none;}
 </style>
 </head>
 <body>
@@ -321,6 +335,11 @@
     <div id="listAll"></div>
   </div>
 
+  <footer>
+    Data stays on this device · <a href="#" id="exportBtn">Export JSON</a> · <a href="#" id="importBtn">Import</a>
+    <input type="file" id="importFile" accept="application/json" style="display:none">
+  </footer>
+
   <div class="fab">
     <div class="fab-inner" id="openSheetBtn">＋ Add entry</div>
   </div>
@@ -342,7 +361,7 @@
     <div class="row2">
       <div>
         <label for="fQty">Quantity (kg)</label>
-        <input id="fQty" type="number" inputmode="decimal" placeholder="0">
+        <input id="fQty" type="number" inputmode="decimal" placeholder="0" step="any">
         <div class="quick-qty">
           <div class="qchip" data-add="25">+25kg</div>
           <div class="qchip" data-add="50">+50kg (1 sack)</div>
@@ -350,7 +369,7 @@
       </div>
       <div>
         <label for="fPrice">Price per kg (₱)</label>
-        <input id="fPrice" type="number" inputmode="decimal" placeholder="0">
+        <input id="fPrice" type="number" inputmode="decimal" placeholder="0" step="any">
       </div>
     </div>
 
@@ -372,39 +391,47 @@
 
 <div class="toast" id="toast">Saved</div>
 
+<div class="install-banner" id="installBanner">
+  <span>Install Bigas Ledger on your home screen</span>
+  <button class="close" id="installDismiss">✕</button>
+  <button id="installBtn">Install</button>
+</div>
+
 <script>
 (function(){
-  const STORAGE_KEY = 'bigas-ledger-entries';
+  const STORAGE_KEY = 'bigas-ledger-entries-v1';
   let entries = [];
   let currentType = 'purchase';
   let editingId = null;
   let activeFilter = 'all';
-  let loaded = false;
 
   const $ = id => document.getElementById(id);
   const peso = n => '₱' + (Math.round(n*100)/100).toLocaleString('en-PH', {minimumFractionDigits: 0, maximumFractionDigits: 2});
 
   function fmtDate(d){
-    const dt = new Date(d + 'T00:00:00');
-    return dt.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+    try{
+      const dt = new Date(d + 'T00:00:00');
+      return dt.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+    }catch(e){ return d; }
   }
 
-  async function loadEntries(){
+  // --- localStorage persistence (works everywhere: GH Pages, Netlify, local file) ---
+  function loadEntries(){
     try{
-      const res = await window.storage.get(STORAGE_KEY, false);
-      entries = res && res.value ? JSON.parse(res.value) : [];
+      const raw = localStorage.getItem(STORAGE_KEY);
+      entries = raw ? JSON.parse(raw) : [];
+      if(!Array.isArray(entries)) entries = [];
     }catch(e){
       entries = [];
     }
-    loaded = true;
     render();
   }
 
-  async function persist(){
+  function persist(){
     try{
-      await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     }catch(e){
-      showToast('Could not save — try again');
+      showToast('Could not save — storage may be full');
     }
   }
 
@@ -427,6 +454,12 @@
     return {revenue, expense, profit, stock, avgCost};
   }
 
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
   function renderStub(e){
     const isSale = e.type === 'sale';
     return `
@@ -434,7 +467,7 @@
         <div class="stub-tab ${e.type}"></div>
         <div class="stub-body">
           <div class="stub-top">
-            <div>
+            <div style="min-width:0; flex:1;">
               <div class="stub-type ${e.type}">${isSale ? 'Sold' : 'Bought'}</div>
               <div class="stub-party">${escapeHtml(e.party || (isSale ? 'Customer' : 'Supplier'))}</div>
               <div class="stub-date">${fmtDate(e.date)}</div>
@@ -450,16 +483,12 @@
       </div>`;
   }
 
-  function escapeHtml(s){
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
   function render(){
     const s = computeSummary();
-    $('netAmt').textContent = Math.round(Math.abs(s.profit)).toLocaleString('en-PH');
-    $('netAmt').parentElement.querySelector('.cur').textContent = s.profit < 0 ? '-₱' : '₱';
+    const netAmtEl = $('netAmt');
+    const curEl = netAmtEl.parentElement.querySelector('.cur');
+    netAmtEl.textContent = Math.abs(Math.round(s.profit)).toLocaleString('en-PH');
+    curEl.textContent = s.profit < 0 ? '-₱' : '₱';
     $('netCaption').textContent = entries.length === 0
       ? 'No entries yet — add your first sale or purchase'
       : (s.profit >= 0 ? 'You are in the green' : 'Currently operating at a loss');
@@ -468,12 +497,6 @@
     $('statExpense').textContent = peso(s.expense);
     $('statStock').textContent = (Math.round(s.stock*10)/10) + ' kg';
     $('statAvgCost').textContent = peso(s.avgCost);
-
-    if(!loaded){
-      $('listRecent').innerHTML = '<div class="loading-note">Loading your ledger…</div>';
-      $('listAll').innerHTML = '';
-      return;
-    }
 
     const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
 
@@ -494,14 +517,15 @@
     });
   }
 
-  async function deleteEntry(id){
+  function deleteEntry(id){
+    if(!confirm('Delete this entry?')) return;
     entries = entries.filter(e => e.id !== id);
     render();
-    await persist();
+    persist();
     showToast('Entry deleted');
   }
 
-  // ---- Tabs ----
+  // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.onclick = () => {
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -512,7 +536,7 @@
     };
   });
 
-  // ---- Filters ----
+  // Filters
   document.querySelectorAll('.pill').forEach(p=>{
     p.onclick = () => {
       document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
@@ -522,7 +546,7 @@
     };
   });
 
-  // ---- Sheet open/close ----
+  // Sheet
   function openSheet(){
     editingId = null;
     $('sheetTitle').textContent = 'New entry';
@@ -571,7 +595,7 @@
     $('saveBtn').disabled = !(qty > 0 && price > 0);
   }
 
-  $('saveBtn').onclick = async () => {
+  $('saveBtn').onclick = () => {
     const qty = parseFloat($('fQty').value) || 0;
     const price = parseFloat($('fPrice').value) || 0;
     if(qty <= 0 || price <= 0) return;
@@ -593,13 +617,68 @@
     }
     closeSheet();
     render();
-    await persist();
-    showToast(currentType === 'sale' ? 'Sale recorded' : 'Purchase recorded');
+    persist();
+    showToast(currentType === 'sale' ? 'Sale recorded ✓' : 'Purchase recorded ✓');
   };
 
-  // init
+  // Export / Import (so users can back up or move devices)
+  $('exportBtn').onclick = (e) => {
+    e.preventDefault();
+    const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bigas-ledger-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Exported ✓');
+  };
+
+  $('importBtn').onclick = (e) => {
+    e.preventDefault();
+    $('importFile').click();
+  };
+
+  $('importFile').onchange = (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!Array.isArray(data)) throw new Error('Invalid file');
+        if(confirm(`Import ${data.length} entries? This will MERGE with your current data.`)){
+          entries = entries.concat(data);
+          persist();
+          render();
+          showToast('Imported ✓');
+        }
+      }catch(err){
+        showToast('Invalid file');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  // PWA install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    $('installBanner').classList.add('show');
+  });
+  $('installBtn').onclick = async () => {
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    $('installBanner').classList.remove('show');
+  };
+  $('installDismiss').onclick = () => $('installBanner').classList.remove('show');
+
+  // Init
   $('fDate').value = new Date().toISOString().slice(0,10);
-  render();
   loadEntries();
 })();
 </script>
