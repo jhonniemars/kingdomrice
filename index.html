@@ -87,8 +87,6 @@
   }
   .net-amount span.cur{font-size:20px; color:var(--gold);}
   .net-caption{font-size:12px; color:#A9B3A6; margin-top:6px;}
-
-  /* ---------- Summary cards: 2x2 grid, nothing gets cut off ---------- */
   .cards-row{
     display:grid;
     grid-template-columns:repeat(2, 1fr);
@@ -113,7 +111,6 @@
   }
   .stat-value.rust{color:var(--rust);}
   .stat-value.profit{color:var(--profit);}
-
   .tabs{
     display:flex; margin:20px 16px 10px;
     background:var(--card);
@@ -212,8 +209,9 @@
   .type-toggle{display:flex; gap:8px; margin-bottom:16px;}
   .type-opt{
     flex:1; text-align:center; padding:11px 0; border-radius:12px;
-    border:1.5px solid var(--line); font-weight:600; font-size:13.5px; cursor:pointer;
+    border:1.5px solid var(--line); font-weight:700; font-size:12.5px; cursor:pointer;
     color:var(--ink-soft); background:var(--card);
+    text-transform:uppercase; letter-spacing:0.6px;
   }
   .type-opt.sel-purchase{ border-color:var(--rust); background:var(--rust-soft); color:var(--rust); }
   .type-opt.sel-sale{ border-color:var(--profit); background:var(--profit-soft); color:var(--profit); }
@@ -350,8 +348,8 @@
     <h2 id="sheetTitle">New entry</h2>
 
     <div class="type-toggle">
-      <div class="type-opt" id="optPurchase">🧾 Bought stock</div>
-      <div class="type-opt" id="optSale">💰 Sold stock</div>
+      <div class="type-opt" id="optPurchase">🧾 Purchase</div>
+      <div class="type-opt" id="optSale">💰 Sold</div>
     </div>
 
     <label for="fParty">Supplier / buyer name</label>
