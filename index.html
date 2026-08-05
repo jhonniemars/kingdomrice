@@ -87,14 +87,18 @@
   }
   .net-amount span.cur{font-size:20px; color:var(--gold);}
   .net-caption{font-size:12px; color:#A9B3A6; margin-top:6px;}
+
+  /* ---------- Summary cards: 2x2 grid, nothing gets cut off ---------- */
   .cards-row{
-    display:flex; gap:10px; padding:16px 16px 4px;
-    overflow-x:auto; margin-top:-18px; position:relative;
-    scrollbar-width:none;
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
+    padding:16px 16px 4px;
+    margin-top:-18px;
+    position:relative;
   }
-  .cards-row::-webkit-scrollbar{display:none;}
   .stat-card{
-    flex:1 0 auto; min-width:118px;
+    min-width:0;
     background:var(--card);
     border-radius:14px;
     padding:12px 13px;
@@ -103,9 +107,13 @@
   }
   .stat-icon{font-size:15px;}
   .stat-label{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.6px; margin-top:6px;}
-  .stat-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; margin-top:3px;}
+  .stat-value{
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; margin-top:3px;
+    overflow-wrap:anywhere;
+  }
   .stat-value.rust{color:var(--rust);}
   .stat-value.profit{color:var(--profit);}
+
   .tabs{
     display:flex; margin:20px 16px 10px;
     background:var(--card);
