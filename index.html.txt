@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bigas Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEE8D6;
+    --card:#FFFDF7;
+    --ink:#2B2318;
+    --ink-soft:#6B6252;
+    --green-deep:#24352A;
+    --green-deep-2:#1B2921;
+    --gold:#C89B3C;
+    --gold-soft:#EBD9A6;
+    --rust:#A6472B;
+    --rust-soft:#F2DDD3;
+    --profit:#3E7D4C;
+    --profit-soft:#DCE8DC;
+    --line:#D8CDB0;
+    --shadow: 0 6px 20px rgba(43,35,24,0.10);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:440px;
+    min-height:100vh;
+    background:var(--bg);
+    position:relative;
+    padding-bottom:96px;
+  }
+
+  header{
+    background:linear-gradient(160deg,var(--green-deep),var(--green-deep-2));
+    padding:22px 20px 28px;
+    border-radius:0 0 28px 28px;
+    color:#F4EFE0;
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    right:-30px; top:-30px;
+    width:150px; height:150px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(200,155,60,0.28),transparent 70%);
+  }
+  .brand-row{display:flex; align-items:center; gap:10px; position:relative;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;
+    background:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px; flex-shrink:0;
+  }
+  .brand-name{font-family:'Fraunces',serif; font-size:20px; font-weight:600; letter-spacing:0.2px;}
+  .brand-sub{font-size:11.5px; color:#C8C0AC; margin-top:1px;}
+  .net-hero{margin-top:22px; position:relative;}
+  .net-label{font-size:12px; color:#B9C4B7; text-transform:uppercase; letter-spacing:1.2px;}
+  .net-amount{
+    font-family:'Fraunces',serif; font-weight:700;
+    font-size:38px; margin-top:4px; line-height:1;
+    display:flex; align-items:baseline; gap:6px;
+  }
+  .net-amount span.cur{font-size:20px; color:var(--gold);}
+  .net-caption{font-size:12px; color:#A9B3A6; margin-top:6px;}
+
+  .cards-row{
+    display:flex; gap:10px; padding:16px 16px 4px;
+    overflow-x:auto; margin-top:-18px; position:relative;
+  }
+  .stat-card{
+    flex:1 0 auto; min-width:118px;
+    background:var(--card);
+    border-radius:14px;
+    padding:12px 13px;
+    box-shadow:var(--shadow);
+    border:1px solid rgba(216,205,176,0.6);
+  }
+  .stat-icon{font-size:15px;}
+  .stat-label{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.6px; margin-top:6px;}
+  .stat-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; margin-top:3px;}
+  .stat-value.rust{color:var(--rust);}
+  .stat-value.profit{color:var(--profit);}
+
+  .tabs{
+    display:flex; margin:20px 16px 10px;
+    background:var(--card);
+    border-radius:12px;
+    padding:4px;
+    border:1px solid var(--line);
+  }
+  .tab-btn{
+    flex:1; text-align:center; padding:9px 0;
+    font-size:13px; font-weight:600; color:var(--ink-soft);
+    border-radius:9px; cursor:pointer; user-select:none;
+    transition:background .15s, color .15s;
+  }
+  .tab-btn.active{ background:var(--green-deep); color:#F4EFE0; }
+
+  .section-title{
+    display:flex; justify-content:space-between; align-items:center;
+    margin:18px 16px 8px;
+  }
+  .section-title h3{
+    font-family:'Fraunces',serif; font-size:16px; margin:0; font-weight:600;
+  }
+  .filter-pills{display:flex; gap:6px;}
+  .pill{
+    font-size:11px; padding:5px 10px; border-radius:100px;
+    border:1px solid var(--line); color:var(--ink-soft); cursor:pointer;
+    background:var(--card);
+  }
+  .pill.active{ background:var(--gold); color:var(--green-deep-2); border-color:var(--gold); font-weight:600; }
+
+  #list{padding:0 16px; display:flex; flex-direction:column; gap:10px;}
+  .stub{
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    display:flex;
+    overflow:hidden;
+    border:1px solid rgba(216,205,176,0.6);
+    position:relative;
+  }
+  .stub-tab{
+    width:6px; flex-shrink:0;
+  }
+  .stub-tab.sale{background:var(--profit);}
+  .stub-tab.purchase{background:var(--rust);}
+  .stub-body{
+    flex:1; padding:12px 14px;
+    position:relative;
+  }
+  .stub-perf{
+    position:absolute; right:0; top:0; bottom:0; width:0;
+    border-left:2px dashed var(--line);
+  }
+  .stub-top{display:flex; justify-content:space-between; align-items:flex-start;}
+  .stub-type{
+    font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .stub-type.sale{color:var(--profit);}
+  .stub-type.purchase{color:var(--rust);}
+  .stub-party{font-size:14px; font-weight:600; margin-top:2px;}
+  .stub-date{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+  .stub-amt{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px; text-align:right;}
+  .stub-qty{font-size:11px; color:var(--ink-soft); text-align:right; margin-top:2px;}
+  .stub-note{font-size:11.5px; color:var(--ink-soft); margin-top:8px; border-top:1px dashed var(--line); padding-top:7px;}
+  .stub-del{
+    position:absolute; bottom:8px; right:12px;
+    font-size:11px; color:var(--rust); cursor:pointer; opacity:0.75;
+  }
+  .empty-state{
+    text-align:center; padding:40px 20px; color:var(--ink-soft);
+  }
+  .empty-state .em-icon{font-size:30px;}
+  .empty-state p{font-size:13px; margin-top:8px; line-height:1.5;}
+
+  .fab{
+    position:fixed; bottom:24px; left:50%; transform:translateX(calc(-50% + 0px));
+    max-width:440px; width:calc(100% - 32px);
+    margin:0 16px;
+  }
+  .fab-inner{
+    background:var(--green-deep);
+    color:#F4EFE0;
+    border-radius:16px;
+    padding:14px 18px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:600; font-size:14.5px;
+    box-shadow:0 10px 24px rgba(36,53,42,0.35);
+    cursor:pointer;
+  }
+  .fab-inner:active{ transform:scale(0.98); }
+
+  .sheet-overlay{
+    position:fixed; inset:0; background:rgba(27,41,33,0.45);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .sheet-overlay.open{display:flex;}
+  .sheet{
+    background:var(--bg);
+    width:100%; max-width:440px;
+    border-radius:22px 22px 0 0;
+    padding:8px 20px 26px;
+    max-height:88vh; overflow-y:auto;
+    animation:slideUp .22s ease-out;
+  }
+  @keyframes slideUp{ from{transform:translateY(30px); opacity:0.4;} to{transform:translateY(0); opacity:1;} }
+  .sheet-handle{ width:38px; height:4px; background:var(--line); border-radius:10px; margin:6px auto 14px; }
+  .sheet h2{font-family:'Fraunces',serif; font-size:19px; margin:0 0 14px;}
+  .type-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .type-opt{
+    flex:1; text-align:center; padding:11px 0; border-radius:12px;
+    border:1.5px solid var(--line); font-weight:600; font-size:13.5px; cursor:pointer;
+    color:var(--ink-soft); background:var(--card);
+  }
+  .type-opt.sel-purchase{ border-color:var(--rust); background:var(--rust-soft); color:var(--rust); }
+  .type-opt.sel-sale{ border-color:var(--profit); background:var(--profit-soft); color:var(--profit); }
+  label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.4px;}
+  input, textarea{
+    width:100%; padding:12px 13px; border-radius:11px;
+    border:1.5px solid var(--line); font-family:'Inter',sans-serif;
+    font-size:14.5px; background:var(--card); color:var(--ink);
+  }
+  input:focus, textarea:focus{ outline:none; border-color:var(--gold); }
+  .row2{display:flex; gap:10px;}
+  .row2 > div{flex:1;}
+  .quick-qty{display:flex; gap:6px; margin-top:8px;}
+  .qchip{
+    font-size:11.5px; padding:6px 10px; border-radius:100px;
+    background:var(--gold-soft); color:#6B4E14; cursor:pointer; font-weight:600;
+  }
+  .total-preview{
+    margin-top:16px; background:var(--card); border-radius:12px; padding:12px 14px;
+    display:flex; justify-content:space-between; align-items:center;
+    border:1px solid var(--line);
+  }
+  .total-preview .tp-label{font-size:12px; color:var(--ink-soft);}
+  .total-preview .tp-val{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:17px;}
+  .save-btn{
+    width:100%; margin-top:18px; padding:14px 0; border:none;
+    background:var(--green-deep); color:#F4EFE0; font-weight:700; font-size:14.5px;
+    border-radius:13px; cursor:pointer;
+  }
+  .save-btn:disabled{ opacity:0.5; }
+  .cancel-link{
+    text-align:center; margin-top:12px; font-size:12.5px; color:var(--ink-soft); cursor:pointer;
+  }
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background:var(--green-deep); color:#F4EFE0; padding:10px 18px;
+    border-radius:100px; font-size:13px; font-weight:600; z-index:100;
+    box-shadow:var(--shadow); opacity:0; transition:opacity .25s;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+  .loading-note{ text-align:center; color:var(--ink-soft); font-size:12.5px; padding:30px 0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="brand-row">
+      <div class="brand-mark">🌾</div>
+      <div>
+        <div class="brand-name">Bigas Ledger</div>
+        <div class="brand-sub">Rice trading — expenses &amp; profit</div>
+      </div>
+    </div>
+    <div class="net-hero">
+      <div class="net-label">Net profit</div>
+      <div class="net-amount"><span class="cur">₱</span><span id="netAmt">0</span></div>
+      <div class="net-caption" id="netCaption">No entries yet</div>
+    </div>
+  </header>
+
+  <div class="cards-row">
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Revenue</div>
+      <div class="stat-value profit" id="statRevenue">₱0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🧾</div>
+      <div class="stat-label">Expenses</div>
+      <div class="stat-value rust" id="statExpense">₱0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🌾</div>
+      <div class="stat-label">Stock on hand</div>
+      <div class="stat-value" id="statStock">0 kg</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Avg. cost/kg</div>
+      <div class="stat-value" id="statAvgCost">₱0</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab-btn active" data-tab="dashboard">Dashboard</div>
+    <div class="tab-btn" data-tab="entries">Entries</div>
+  </div>
+
+  <div id="dashTab">
+    <div class="section-title"><h3>Recent activity</h3></div>
+    <div id="listRecent"></div>
+  </div>
+
+  <div id="entriesTab" style="display:none;">
+    <div class="section-title">
+      <h3>All entries</h3>
+      <div class="filter-pills">
+        <div class="pill active" data-filter="all">All</div>
+        <div class="pill" data-filter="purchase">Bought</div>
+        <div class="pill" data-filter="sale">Sold</div>
+      </div>
+    </div>
+    <div id="listAll"></div>
+  </div>
+
+  <div class="fab">
+    <div class="fab-inner" id="openSheetBtn">＋ Add entry</div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="sheetTitle">New entry</h2>
+
+    <div class="type-toggle">
+      <div class="type-opt" id="optPurchase">🧾 Bought stock</div>
+      <div class="type-opt" id="optSale">💰 Sold stock</div>
+    </div>
+
+    <label for="fParty">Supplier / buyer name</label>
+    <input id="fParty" type="text" placeholder="e.g. Aling Nena, Del Monte Traders">
+
+    <div class="row2">
+      <div>
+        <label for="fQty">Quantity (kg)</label>
+        <input id="fQty" type="number" inputmode="decimal" placeholder="0">
+        <div class="quick-qty">
+          <div class="qchip" data-add="25">+25kg</div>
+          <div class="qchip" data-add="50">+50kg (1 sack)</div>
+        </div>
+      </div>
+      <div>
+        <label for="fPrice">Price per kg (₱)</label>
+        <input id="fPrice" type="number" inputmode="decimal" placeholder="0">
+      </div>
+    </div>
+
+    <label for="fDate">Date</label>
+    <input id="fDate" type="date">
+
+    <label for="fNote">Note (optional)</label>
+    <textarea id="fNote" rows="2" placeholder="e.g. jasmine rice, 25kg sacks, cash on delivery"></textarea>
+
+    <div class="total-preview">
+      <div class="tp-label" id="tpLabel">Total amount</div>
+      <div class="tp-val" id="tpVal">₱0</div>
+    </div>
+
+    <button class="save-btn" id="saveBtn">Save entry</button>
+    <div class="cancel-link" id="cancelBtn">Cancel</div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'bigas-ledger-entries';
+  let entries = [];
+  let currentType = 'purchase';
+  let editingId = null;
+  let activeFilter = 'all';
+  let loaded = false;
+
+  const $ = id => document.getElementById(id);
+  const peso = n => '₱' + (Math.round(n*100)/100).toLocaleString('en-PH', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+
+  function fmtDate(d){
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+  }
+
+  async function loadEntries(){
+    try{
+      const stored = localStorage.getItem(STORAGE_KEY);
+      entries = stored ? JSON.parse(stored) : [];
+    }catch(e){
+      entries = [];
+    }
+    loaded = true;
+    render();
+  }
+
+  async function persist(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }catch(e){
+      showToast('Could not save — try again');
+    }
+  }
+
+  function showToast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 1600);
+  }
+
+  function computeSummary(){
+    let revenue=0, expense=0, kgBought=0, kgSold=0, costKgTotal=0;
+    entries.forEach(e=>{
+      if(e.type==='sale'){ revenue += e.total; kgSold += e.qty; }
+      else { expense += e.total; kgBought += e.qty; costKgTotal += e.total; }
+    });
+    const profit = revenue - expense;
+    const stock = kgBought - kgSold;
+    const avgCost = kgBought > 0 ? costKgTotal / kgBought : 0;
+    return {revenue, expense, profit, stock, avgCost};
+  }
+
+  function renderStub(e){
+    const isSale = e.type === 'sale';
+    return `
+      <div class="stub">
+        <div class="stub-tab ${e.type}"></div>
+        <div class="stub-body">
+          <div class="stub-top">
+            <div>
+              <div class="stub-type ${e.type}">${isSale ? 'Sold' : 'Bought'}</div>
+              <div class="stub-party">${escapeHtml(e.party || (isSale ? 'Customer' : 'Supplier'))}</div>
+              <div class="stub-date">${fmtDate(e.date)}</div>
+            </div>
+            <div>
+              <div class="stub-amt" style="color:${isSale ? 'var(--profit)' : 'var(--rust)'}">${isSale?'+':'-'}${peso(e.total)}</div>
+              <div class="stub-qty">${e.qty} kg @ ₱${e.price}/kg</div>
+            </div>
+          </div>
+          ${e.note ? `<div class="stub-note">${escapeHtml(e.note)}</div>` : ''}
+          <div class="stub-del" data-del="${e.id}">Delete</div>
+        </div>
+      </div>`;
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function render(){
+    const s = computeSummary();
+    $('netAmt').textContent = Math.round(Math.abs(s.profit)).toLocaleString('en-PH');
+    $('netAmt').parentElement.querySelector('.cur').textContent = s.profit < 0 ? '-₱' : '₱';
+    $('netCaption').textContent = entries.length === 0
+      ? 'No entries yet — add your first sale or purchase'
+      : (s.profit >= 0 ? 'You are in the green' : 'Currently operating at a loss');
+
+    $('statRevenue').textContent = peso(s.revenue);
+    $('statExpense').textContent = peso(s.expense);
+    $('statStock').textContent = (Math.round(s.stock*10)/10) + ' kg';
+    $('statAvgCost').textContent = peso(s.avgCost);
+
+    if(!loaded){
+      $('listRecent').innerHTML = '<div class="loading-note">Loading your ledger…</div>';
+      $('listAll').innerHTML = '';
+      return;
+    }
+
+    const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+
+    if(sorted.length === 0){
+      const empty = `<div class="empty-state"><div class="em-icon">🌾</div><p>Nothing logged yet.<br>Tap "Add entry" to record your first rice purchase or sale.</p></div>`;
+      $('listRecent').innerHTML = empty;
+      $('listAll').innerHTML = empty;
+    } else {
+      $('listRecent').innerHTML = `<div id="list">${sorted.slice(0,5).map(renderStub).join('')}</div>`;
+      const filtered = activeFilter === 'all' ? sorted : sorted.filter(e => e.type === activeFilter);
+      $('listAll').innerHTML = filtered.length
+        ? `<div id="list">${filtered.map(renderStub).join('')}</div>`
+        : `<div class="empty-state"><p>No ${activeFilter === 'purchase' ? 'purchases' : 'sales'} logged yet.</p></div>`;
+    }
+
+    document.querySelectorAll('[data-del]').forEach(el=>{
+      el.onclick = () => deleteEntry(el.getAttribute('data-del'));
+    });
+  }
+
+  async function deleteEntry(id){
+    entries = entries.filter(e => e.id !== id);
+    render();
+    await persist();
+    showToast('Entry deleted');
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-tab');
+      $('dashTab').style.display = tab === 'dashboard' ? '' : 'none';
+      $('entriesTab').style.display = tab === 'entries' ? '' : 'none';
+    };
+  });
+
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.onclick = () => {
+      document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      activeFilter = p.getAttribute('data-filter');
+      render();
+    };
+  });
+
+  function openSheet(){
+    editingId = null;
+    $('sheetTitle').textContent = 'New entry';
+    $('fParty').value = '';
+    $('fQty').value = '';
+    $('fPrice').value = '';
+    $('fNote').value = '';
+    $('fDate').value = new Date().toISOString().slice(0,10);
+    setType('purchase');
+    updateTotalPreview();
+    $('sheetOverlay').classList.add('open');
+  }
+  function closeSheet(){ $('sheetOverlay').classList.remove('open'); }
+
+  $('openSheetBtn').onclick = openSheet;
+  $('cancelBtn').onclick = closeSheet;
+  $('sheetOverlay').onclick = (e) => { if(e.target === $('sheetOverlay')) closeSheet(); };
+
+  function setType(t){
+    currentType = t;
+    $('optPurchase').className = 'type-opt' + (t==='purchase' ? ' sel-purchase' : '');
+    $('optSale').className = 'type-opt' + (t==='sale' ? ' sel-sale' : '');
+    $('fParty').placeholder = t === 'sale' ? 'e.g. Mang Tomas Sari-sari Store' : 'e.g. Aling Nena, Del Monte Traders';
+    $('tpLabel').textContent = t === 'sale' ? 'Total revenue' : 'Total cost';
+    updateTotalPreview();
+  }
+  $('optPurchase').onclick = () => setType('purchase');
+  $('optSale').onclick = () => setType('sale');
+
+  document.querySelectorAll('.qchip').forEach(chip=>{
+    chip.onclick = () => {
+      const add = parseFloat(chip.getAttribute('data-add'));
+      const cur = parseFloat($('fQty').value) || 0;
+      $('fQty').value = cur + add;
+      updateTotalPreview();
+    };
+  });
+
+  $('fQty').oninput = updateTotalPreview;
+  $('fPrice').oninput = updateTotalPreview;
+
+  function updateTotalPreview(){
+    const qty = parseFloat($('fQty').value) || 0;
+    const price = parseFloat($('fPrice').value) || 0;
+    $('tpVal').textContent = peso(qty * price);
+    $('saveBtn').disabled = !(qty > 0 && price > 0);
+  }
+
+  $('saveBtn').onclick = async () => {
+    const qty = parseFloat($('fQty').value) || 0;
+    const price = parseFloat($('fPrice').value) || 0;
+    if(qty <= 0 || price <= 0) return;
+
+    const entry = {
+      id: editingId || (Date.now().toString(36) + Math.random().toString(36).slice(2,7)),
+      type: currentType,
+      party: $('fParty').value.trim(),
+      qty, price,
+      total: Math.round(qty*price*100)/100,
+      date: $('fDate').value || new Date().toISOString().slice(0,10),
+      note: $('fNote').value.trim()
+    };
+
+    if(editingId){
+      entries = entries.map(e => e.id === editingId ? entry : e);
+    } else {
+      entries.push(entry);
+    }
+    closeSheet();
+    render();
+    await persist();
+    showToast(currentType === 'sale' ? 'Sale recorded' : 'Purchase recorded');
+  };
+
+  $('fDate').value = new Date().toISOString().slice(0,10);
+  render();
+  loadEntries();
+})();
+</script>
+</body>
+</html>
