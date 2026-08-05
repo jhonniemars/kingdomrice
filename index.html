@@ -266,10 +266,6 @@
   .install-banner .close{
     background:transparent; color:var(--ink-soft); margin-left:0; margin-right:4px;
   }
-  footer{
-    text-align:center; padding:20px 16px 8px; font-size:11px; color:var(--ink-soft);
-  }
-  footer a{color:var(--green-deep); text-decoration:none;}
 </style>
 </head>
 <body>
@@ -334,11 +330,6 @@
     </div>
     <div id="listAll"></div>
   </div>
-
-  <footer>
-    Data stays on this device · <a href="#" id="exportBtn">Export JSON</a> · <a href="#" id="importBtn">Import</a>
-    <input type="file" id="importFile" accept="application/json" style="display:none">
-  </footer>
 
   <div class="fab">
     <div class="fab-inner" id="openSheetBtn">＋ Add entry</div>
@@ -619,46 +610,6 @@
     render();
     persist();
     showToast(currentType === 'sale' ? 'Sale recorded ✓' : 'Purchase recorded ✓');
-  };
-
-  // Export / Import
-  $('exportBtn').onclick = (e) => {
-    e.preventDefault();
-    const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bigas-ledger-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Exported ✓');
-  };
-
-  $('importBtn').onclick = (e) => {
-    e.preventDefault();
-    $('importFile').click();
-  };
-
-  $('importFile').onchange = (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try{
-        const data = JSON.parse(ev.target.result);
-        if(!Array.isArray(data)) throw new Error('Invalid file');
-        if(confirm(`Import ${data.length} entries? This will MERGE with your current data.`)){
-          entries = entries.concat(data);
-          persist();
-          render();
-          showToast('Imported ✓');
-        }
-      }catch(err){
-        showToast('Invalid file');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
   };
 
   // PWA install prompt
