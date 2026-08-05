@@ -42,6 +42,7 @@
     padding-bottom:96px;
   }
 
+  /* ---------- Header ---------- */
   header{
     background:linear-gradient(160deg,var(--green-deep),var(--green-deep-2));
     padding:22px 20px 28px;
@@ -77,6 +78,7 @@
   .net-amount span.cur{font-size:20px; color:var(--gold);}
   .net-caption{font-size:12px; color:#A9B3A6; margin-top:6px;}
 
+  /* ---------- Summary cards ---------- */
   .cards-row{
     display:flex; gap:10px; padding:16px 16px 4px;
     overflow-x:auto; margin-top:-18px; position:relative;
@@ -95,6 +97,7 @@
   .stat-value.rust{color:var(--rust);}
   .stat-value.profit{color:var(--profit);}
 
+  /* ---------- Tabs ---------- */
   .tabs{
     display:flex; margin:20px 16px 10px;
     background:var(--card);
@@ -110,6 +113,7 @@
   }
   .tab-btn.active{ background:var(--green-deep); color:#F4EFE0; }
 
+  /* ---------- Section title ---------- */
   .section-title{
     display:flex; justify-content:space-between; align-items:center;
     margin:18px 16px 8px;
@@ -125,6 +129,7 @@
   }
   .pill.active{ background:var(--gold); color:var(--green-deep-2); border-color:var(--gold); font-weight:600; }
 
+  /* ---------- Ledger list ---------- */
   #list{padding:0 16px; display:flex; flex-direction:column; gap:10px;}
   .stub{
     background:var(--card);
@@ -169,6 +174,7 @@
   .empty-state .em-icon{font-size:30px;}
   .empty-state p{font-size:13px; margin-top:8px; line-height:1.5;}
 
+  /* ---------- FAB ---------- */
   .fab{
     position:fixed; bottom:24px; left:50%; transform:translateX(calc(-50% + 0px));
     max-width:440px; width:calc(100% - 32px);
@@ -186,6 +192,7 @@
   }
   .fab-inner:active{ transform:scale(0.98); }
 
+  /* ---------- Sheet ---------- */
   .sheet-overlay{
     position:fixed; inset:0; background:rgba(27,41,33,0.45);
     display:none; align-items:flex-end; justify-content:center; z-index:50;
@@ -384,8 +391,8 @@
 
   async function loadEntries(){
     try{
-      const stored = localStorage.getItem(STORAGE_KEY);
-      entries = stored ? JSON.parse(stored) : [];
+      const res = await window.storage.get(STORAGE_KEY, false);
+      entries = res && res.value ? JSON.parse(res.value) : [];
     }catch(e){
       entries = [];
     }
@@ -395,7 +402,7 @@
 
   async function persist(){
     try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+      await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
     }catch(e){
       showToast('Could not save — try again');
     }
@@ -494,6 +501,7 @@
     showToast('Entry deleted');
   }
 
+  // ---- Tabs ----
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.onclick = () => {
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -504,6 +512,7 @@
     };
   });
 
+  // ---- Filters ----
   document.querySelectorAll('.pill').forEach(p=>{
     p.onclick = () => {
       document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
@@ -513,6 +522,7 @@
     };
   });
 
+  // ---- Sheet open/close ----
   function openSheet(){
     editingId = null;
     $('sheetTitle').textContent = 'New entry';
@@ -587,6 +597,7 @@
     showToast(currentType === 'sale' ? 'Sale recorded' : 'Purchase recorded');
   };
 
+  // init
   $('fDate').value = new Date().toISOString().slice(0,10);
   render();
   loadEntries();
