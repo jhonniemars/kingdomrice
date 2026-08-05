@@ -304,11 +304,11 @@
     <div class="stat-card">
       <div class="stat-icon">🌾</div>
       <div class="stat-label">Stock on hand</div>
-      <div class="stat-value" id="statStock">0 kg</div>
+      <div class="stat-value" id="statStock">0 sacks</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">📦</div>
-      <div class="stat-label">Avg. cost/kg</div>
+      <div class="stat-label">Avg. cost/sack</div>
       <div class="stat-value" id="statAvgCost">₱0</div>
     </div>
   </div>
@@ -360,15 +360,15 @@
 
     <div class="row2">
       <div>
-        <label for="fQty">Quantity (kg)</label>
+        <label for="fQty">Quantity (sack)</label>
         <input id="fQty" type="number" inputmode="decimal" placeholder="0" step="any">
         <div class="quick-qty">
-          <div class="qchip" data-add="25">+25kg</div>
-          <div class="qchip" data-add="50">+50kg (1 sack)</div>
+          <div class="qchip" data-add="1">+1 sack</div>
+          <div class="qchip" data-add="10">+10 sacks</div>
         </div>
       </div>
       <div>
-        <label for="fPrice">Price per kg (₱)</label>
+        <label for="fPrice">Price per sack (₱)</label>
         <input id="fPrice" type="number" inputmode="decimal" placeholder="0" step="any">
       </div>
     </div>
@@ -377,7 +377,7 @@
     <input id="fDate" type="date">
 
     <label for="fNote">Note (optional)</label>
-    <textarea id="fNote" rows="2" placeholder="e.g. jasmine rice, 25kg sacks, cash on delivery"></textarea>
+    <textarea id="fNote" rows="2" placeholder="e.g. jasmine rice, 50kg sacks, cash on delivery"></textarea>
 
     <div class="total-preview">
       <div class="tp-label" id="tpLabel">Total amount</div>
@@ -407,6 +407,7 @@
 
   const $ = id => document.getElementById(id);
   const peso = n => '₱' + (Math.round(n*100)/100).toLocaleString('en-PH', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+  const sackWord = n => (Math.abs(n) === 1 ? 'sack' : 'sacks');
 
   function fmtDate(d){
     try{
@@ -415,7 +416,6 @@
     }catch(e){ return d; }
   }
 
-  // --- localStorage persistence (works everywhere: GH Pages, Netlify, local file) ---
   function loadEntries(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -443,14 +443,14 @@
   }
 
   function computeSummary(){
-    let revenue=0, expense=0, kgBought=0, kgSold=0, costKgTotal=0;
+    let revenue=0, expense=0, bought=0, sold=0, costTotal=0;
     entries.forEach(e=>{
-      if(e.type==='sale'){ revenue += e.total; kgSold += e.qty; }
-      else { expense += e.total; kgBought += e.qty; costKgTotal += e.total; }
+      if(e.type==='sale'){ revenue += e.total; sold += e.qty; }
+      else { expense += e.total; bought += e.qty; costTotal += e.total; }
     });
     const profit = revenue - expense;
-    const stock = kgBought - kgSold;
-    const avgCost = kgBought > 0 ? costKgTotal / kgBought : 0;
+    const stock = bought - sold;
+    const avgCost = bought > 0 ? costTotal / bought : 0;
     return {revenue, expense, profit, stock, avgCost};
   }
 
@@ -474,7 +474,7 @@
             </div>
             <div>
               <div class="stub-amt" style="color:${isSale ? 'var(--profit)' : 'var(--rust)'}">${isSale?'+':'-'}${peso(e.total)}</div>
-              <div class="stub-qty">${e.qty} kg @ ₱${e.price}/kg</div>
+              <div class="stub-qty">${e.qty} ${sackWord(e.qty)} @ ₱${e.price}/sack</div>
             </div>
           </div>
           ${e.note ? `<div class="stub-note">${escapeHtml(e.note)}</div>` : ''}
@@ -495,7 +495,7 @@
 
     $('statRevenue').textContent = peso(s.revenue);
     $('statExpense').textContent = peso(s.expense);
-    $('statStock').textContent = (Math.round(s.stock*10)/10) + ' kg';
+    $('statStock').textContent = (Math.round(s.stock*10)/10) + ' ' + sackWord(s.stock);
     $('statAvgCost').textContent = peso(s.avgCost);
 
     const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
@@ -621,7 +621,7 @@
     showToast(currentType === 'sale' ? 'Sale recorded ✓' : 'Purchase recorded ✓');
   };
 
-  // Export / Import (so users can back up or move devices)
+  // Export / Import
   $('exportBtn').onclick = (e) => {
     e.preventDefault();
     const blob = new Blob([JSON.stringify(entries, null, 2)], {type:'application/json'});
